@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curenja</title>
+<style>
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background: #e0e5ec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .container {
+    background: #e0e5ec;
+    border-radius: 30px;
+    box-shadow: 9px 9px 16px #a3b1c6,
+                -9px -9px 16px #ffffff;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  h1 {
+    margin-bottom: 25px;
+    color: #333;
+  }
+
+  select, input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 15px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: #e0e5ec;
+    color: #333;
+    box-shadow: inset 6px 6px 10px #a3b1c6,
+                inset -6px -6px 10px #ffffff;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  select:focus, input:focus {
+    box-shadow: inset 3px 3px 6px #a3b1c6,
+                inset -3px -3px 6px #ffffff;
+  }
+
+  button {
+    cursor: pointer;
+    font-weight: bold;
+    background: #e0e5ec;
+    color: #333;
+    box-shadow: 6px 6px 10px #a3b1c6,
+                -6px -6px 10px #ffffff;
+    transition: all 0.2s ease-in-out;
+  }
+
+  button:hover {
+    box-shadow: inset 3px 3px 6px #a3b1c6,
+                inset -3px -3px 6px #ffffff;
+  }
+
+  #toggleDark {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .dark {
+    background: #2a2d32;
+    color: #eee;
+  }
+
+  .dark .container {
+    background: #2a2d32;
+    box-shadow: 9px 9px 16px #1c1e21,
+                -9px -9px 16px #383c43;
+  }
+
+  .dark select, .dark input, .dark button {
+    background: #2a2d32;
+    color: #eee;
+    box-shadow: inset 6px 6px 10px #1c1e21,
+                inset -6px -6px 10px #383c43;
+  }
+
+  .dark button:hover {
+    box-shadow: inset 3px 3px 6px #1c1e21,
+                inset -3px -3px 6px #383c43;
+  }
+
+  .result {
+    margin-top: 20px;
+    font-size: 1.2rem;
+  }
+
+  .result span {
+    font-weight: bold;
+    display: inline-block;
+    animation: popIn 0.6s ease, glowPulse 1.5s ease-in-out infinite alternate;
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+
+  body:not(.dark) .result span {
+    color: #333;
+    text-shadow: 0 0 3px #aaa, 0 0 6px #ccc;
+    animation: popIn 0.6s ease, glowPulse 1.5s ease-in-out infinite alternate;
+  }
+
+  body.dark .result span {
+    color: #ffffff;
+    text-shadow: 0 0 5px #ffffff, 0 0 15px #ffffff;
+    animation: popIn 0.6s ease, glowPulse 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes glowPulse {
+    0% { text-shadow: 0 0 5px currentColor, 0 0 15px currentColor; }
+    100% { text-shadow: 0 0 10px currentColor, 0 0 25px currentColor; }
+  }
+
+  #loading, #lastUpdated {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 8px;
+  }
+
+  footer {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💱 Curenja</h1>
+  <form id="converterForm">
+    <input type="number" id="amount" placeholder="Enter amount" required>
+    <select id="fromCurrency"></select>
+    <select id="toCurrency"></select>
+    <button type="submit">Convert</button>
+  </form>
+  <div id="loading">Loading exchange rates...</div>
+  <div id="lastUpdated"></div>
+  <div class="result" id="result"></div>
+  <button id="toggleDark">🌙</button>
+  <footer>© Curenja 2025</footer>
+</div>
+
+<script>
+const form = document.getElementById('converterForm');
+const amountInput = document.getElementById('amount');
+const fromSelect = document.getElementById('fromCurrency');
+const toSelect = document.getElementById('toCurrency');
+const resultDiv = document.getElementById('result');
+const loadingEl = document.getElementById('loading');
+const lastUpdatedEl = document.getElementById('lastUpdated');
+const toggleDarkBtn = document.getElementById('toggleDark');
+
+const currencyCountries = {
+  "USD": "United States",
+  "EUR": "European Union",
+  "INR": "India",
+  "JPY": "Japan",
+  "GBP": "United Kingdom",
+  // Add more currencies and their countries here
+};
+
+let rates = {};
+
+async function fetchRates() {
+  try {
+    loadingEl.textContent = "Fetching live exchange rates...";
+    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    if (!res.ok) throw new Error("Failed to fetch rates");
+    const data = await res.json();
+    rates = data.rates;
+    loadingEl.textContent = "Rates updated ✓";
+
+    const now = new Date();
+    lastUpdatedEl.textContent = "Last updated: " + now.toLocaleString();
+    setTimeout(() => loadingEl.textContent = "", 2500);
+    populateCurrencies(Object.keys(rates));
+  } catch (err) {
+    console.error(err);
+    loadingEl.textContent = "Failed to fetch live rates.";
+  }
+}
+
+function populateCurrencies(currencyList) {
+  if (fromSelect.options.length === 0) {
+    currencyList.forEach(code => {
+      let country = currencyCountries[code] || "Unknown";
+      let opt1 = document.createElement("option");
+      opt1.value = code;
+      opt1.textContent = code;
+      opt1.title = country;
+      fromSelect.appendChild(opt1);
+
+      let opt2 = document.createElement("option");
+      opt2.value = code;
+      opt2.textContent = code;
+      opt2.title = country;
+      toSelect.appendChild(opt2);
+    });
+    fromSelect.value = "USD";
+    toSelect.value = "INR";
+  }
+}
+
+function convert(amount, from, to) {
+  if (!rates[from] || !rates[to]) return null;
+  const inUSD = amount / rates[from];
+  return inUSD * rates[to];
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const amount = parseFloat(amountInput.value);
+  const from = fromSelect.value;
+  const to = toSelect.value;
+
+  if (isNaN(amount) || amount <= 0) {
+    resultDiv.textContent = "Please enter a valid amount.";
+    return;
+  }
+
+  const converted = convert(amount, from, to);
+  if (converted === null) {
+    resultDiv.textContent = "Conversion not available.";
+  } else {
+    resultDiv.innerHTML = `${amount.toFixed(2)} ${from} = <span>${converted.toFixed(2)} ${to}</span>`;
+  }
+});
+
+toggleDarkBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+fetchRates();
+</script>
+</body>
+</html>
