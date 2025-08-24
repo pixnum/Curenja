@@ -1,362 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Curenja</title>
-
-  <!-- Favicon (SVG, embedded) -->
-  <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%' cy='45%' r='60%'><stop offset='0%' stop-color='%23ffe680'/><stop offset='100%' stop-color='%23c9a000'/></radialGradient></defs><circle cx='50' cy='50' r='44' fill='url(%23g)' stroke='%23222' stroke-width='4'/><text x='50' y='60' font-size='42' text-anchor='middle' fill='%23222'>💱</text></svg>">
-
-  <!-- Theme color for PWA -->
-  <meta name="theme-color" content="#e0e5ec" />
-
-  <!-- Web App Manifest (embedded as data URL) -->
-  <link rel="manifest"
-        href='data:application/manifest+json,{
-          "name":"Curenja",
-          "short_name":"Curenja",
-          "start_url":".",
-          "display":"standalone",
-          "background_color":"#e0e5ec",
-          "theme_color":"#e0e5ec",
-          "icons":[
-            {"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAAD1dO0VAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeZJREFUeNrs3UEOgjAQBdHn///K2m2v0q2k2wCw6iWb1q8hdQ6w8oX2rQIAAAAAAAAAAIC3c2wOa7bW6nq7y8gHq3yqf1x9w2h1r3b2a0o7n0QyX1d9s7A4HqLx2d6f4w2a2h3GxC0m4h4nJr1wVxW7X9k0fHkqf7Pj2cJQb1c6x1o0V6eWfQf6l4K8yqg5m7d3J0j8kqf7zj0d+3e9u3c8mQn8u3kN7q3m5cW5d6z0G8fH2P5Z0P8r6e0qkq1v2k4R8m2n93M1iOa9a3m+7n2aK3d0bO9y2l4c5wq9bV7Zrd9N9w+B8AAAAAAAAAAAB4UQYwAABtq8k9mH1l7wAAAABJRU5ErkJggg==","sizes":"192x192","type":"image/png"},
-            {"src":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAxZJREFUeNrs3cENgkAQBEHn///S1m0b0Ww5H8hQf8b0mHcAAAAAAAAAAADgH7c0N3f7f9w3p9mZxqf5y3r2cN1bqk9y9vZfZ9bv2c3mX6d3e5b3/0v3c1m6jv2fKk9i1J9y7Yw7zj1bqv3b1H2cN5+uG3h1d8S8c2+8b7c9X2Tt6y9v6u3Wv+X6+5f9gQAAAAAAAAAAAOCgB1kAAICk7b9P2g0vvgAAAABJRU5ErkJggg==","sizes":"512x512","type":"image/png"}
-          ]
-        }' />
-
-  <style>
-    :root{ --bg:#e0e5ec; --fg:#333; --bg-dark:#2a2d32; --fg-dark:#eee; }
-    *{ box-sizing:border-box }
-    body{
-      font-family:"Segoe UI",system-ui,Arial,sans-serif;
-      background:var(--bg); color:var(--fg);
-      display:flex; justify-content:center; align-items:center;
-      min-height:100vh; margin:0; transition:background .3s,color .3s;
-    }
-    .container{
-      background:var(--bg);
-      border-radius:30px; max-width:480px; width:92vw; padding:32px;
-      text-align:center;
-      box-shadow:9px 9px 16px #a3b1c6,-9px -9px 16px #fff;
-    }
-    h1{ margin:0 0 20px; font-weight:700 }
-    .row{ display:grid; gap:12px }
-    input,select,button{ width:100%; padding:12px 14px; border:none; outline:none; border-radius:16px; font-size:1rem; background:var(--bg); color:inherit; box-shadow:inset 6px 6px 10px #a3b1c6, inset -6px -6px 10px #fff; }
-    button{ cursor:pointer; font-weight:700; box-shadow:6px 6px 10px #a3b1c6,-6px -6px 10px #fff; }
-    button:hover{ box-shadow:inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #fff; }
-    #toggleDark{ width:56px; height:56px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:1.25rem; margin-top:10px }
-    #loading,#lastUpdated{ font-size:.9rem; opacity:.8; margin-top:6px }
-    .result{ margin-top:16px; font-size:1.15rem }
-    .result span{ font-weight:800; color:#fff; text-shadow:0 0 6px #fff,0 0 18px #fff; display:inline-block; animation:popIn .5s ease, glowPulse 1.2s ease-in-out infinite alternate }
-    @keyframes popIn{ from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
-    @keyframes glowPulse{ from{ text-shadow:0 0 6px currentColor,0 0 14px currentColor } to{ text-shadow:0 0 12px currentColor,0 0 26px currentColor } }
-    footer{ margin-top:16px; font-size:.85rem; opacity:.7 }
-
-    /* Dark */
-    body.dark{ background:var(--bg-dark); color:var(--fg-dark) }
-    body.dark .container{ background:var(--bg-dark); box-shadow:9px 9px 16px #1c1e21,-9px -9px 16px #383c43 }
-    body.dark input,body.dark select,body.dark button{ background:var(--bg-dark); color:var(--fg-dark); box-shadow:inset 6px 6px 10px #1c1e21, inset -6px -6px 10px #383c43 }
-    body.dark button:hover{ box-shadow:inset 3px 3px 6px #1c1e21, inset -3px -3px 6px #383c43 }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curenja</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body {font-family: Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#e0e0e0;transition: background 0.3s,color 0.3s;}
+body.dark {background:#1e1e1e;color:#fff;}
+h1 {margin-bottom:20px;font-size:2rem;text-align:center;}
+.container {background:#e0e0e0;padding:30px;border-radius:20px;box-shadow:9px 9px 16px #bebebe,-9px -9px 16px #ffffff;width:90%;max-width:400px;text-align:center;}
+body.dark .container {background:#2c2c2c;box-shadow:9px 9px 16px #1a1a1a,-9px -9px 16px #3a3a3a;}
+input, select, button {width:100%;padding:12px;margin:10px 0;border:none;border-radius:12px;outline:none;font-size:1rem;box-shadow: inset 3px 3px 6px #bebebe,inset -3px -3px 6px #ffffff;}
+body.dark input, body.dark select, body.dark button {box-shadow: inset 3px 3px 6px #1a1a1a,inset -3px -3px 6px #3a3a3a;background:#2c2c2c;color:#fff;}
+button {cursor:pointer;font-weight:bold;background:#e0e0e0;}
+body.dark button {background:#2c2c2c;}
+.result {margin-top:20px;font-size:1.3rem;font-weight:bold;color:white;text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;animation:pulse 1.5s infinite;}
+@keyframes pulse {0% {text-shadow:0 0 5px #00ffcc;}50% {text-shadow:0 0 20px #00ffcc;}100% {text-shadow:0 0 5px #00ffcc;}}
+.dark-toggle {margin-top:20px;padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-weight:bold;box-shadow:3px 3px 6px #bebebe,-3px -3px 6px #ffffff;}
+body.dark .dark-toggle {box-shadow:3px 3px 6px #1a1a1a,-3px -3px 6px #3a3a3a;background:#2c2c2c;color:#fff;}
+footer {margin-top:20px;font-size:0.8rem;opacity:0.7;}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>💱 Curenja</h1>
-    <div class="row">
-      <input type="number" id="amount" placeholder="Enter amount" required />
-      <select id="fromCurrency"></select>
-      <select id="toCurrency"></select>
-      <button id="convertBtn">Convert</button>
-    </div>
-    <div id="loading">Loading exchange rates...</div>
-    <div id="lastUpdated"></div>
-    <div class="result" id="result"></div>
-    <button id="toggleDark">🌙</button>
-    <footer>© Manik Roy 2025</footer>
-  </div>
-
+<h1>💱 Curenja</h1>
+<div class="container">
+<input type="number" id="amount" placeholder="Enter Amount">
+<select id="fromCurrency"></select>
+<select id="toCurrency"></select>
+<button onclick="convertCurrency()">Convert</button>
+<div class="result" id="result"></div>
+</div>
+<button class="dark-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+<footer>© Manik Roy 2025</footer>
 <script>
-// ============================
-// 192 Country – Currency(Code)
-// ============================
-// Note: Some regions share a currency (EUR, XOF, XAF, etc.). If a currency
-// isn't present in the live rates feed, the option will be disabled.
-const COUNTRY_CURRENCY = [
-  {n:"Afghanistan", cur:"Afghan Afghani", c:"AFN"},
-  {n:"Albania", cur:"Albanian Lek", c:"ALL"},
-  {n:"Algeria", cur:"Algerian Dinar", c:"DZD"},
-  {n:"Andorra", cur:"Euro", c:"EUR"},
-  {n:"Angola", cur:"Angolan Kwanza", c:"AOA"},
-  {n:"Antigua and Barbuda", cur:"East Caribbean Dollar", c:"XCD"},
-  {n:"Argentina", cur:"Argentine Peso", c:"ARS"},
-  {n:"Armenia", cur:"Armenian Dram", c:"AMD"},
-  {n:"Australia", cur:"Australian Dollar", c:"AUD"},
-  {n:"Austria", cur:"Euro", c:"EUR"},
-  {n:"Azerbaijan", cur:"Azerbaijani Manat", c:"AZN"},
-  {n:"Bahamas", cur:"Bahamian Dollar", c:"BSD"},
-  {n:"Bahrain", cur:"Bahraini Dinar", c:"BHD"},
-  {n:"Bangladesh", cur:"Bangladeshi Taka", c:"BDT"},
-  {n:"Barbados", cur:"Barbadian Dollar", c:"BBD"},
-  {n:"Belarus", cur:"Belarusian Ruble", c:"BYN"},
-  {n:"Belgium", cur:"Euro", c:"EUR"},
-  {n:"Belize", cur:"Belize Dollar", c:"BZD"},
-  {n:"Benin", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Bhutan", cur:"Bhutanese Ngultrum", c:"BTN"},
-  {n:"Bolivia", cur:"Bolivian Boliviano", c:"BOB"},
-  {n:"Bosnia and Herzegovina", cur:"Convertible Mark", c:"BAM"},
-  {n:"Botswana", cur:"Botswana Pula", c:"BWP"},
-  {n:"Brazil", cur:"Brazilian Real", c:"BRL"},
-  {n:"Brunei", cur:"Brunei Dollar", c:"BND"},
-  {n:"Bulgaria", cur:"Bulgarian Lev", c:"BGN"},
-  {n:"Burkina Faso", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Burundi", cur:"Burundian Franc", c:"BIF"},
-  {n:"Cabo Verde", cur:"Cape Verdean Escudo", c:"CVE"},
-  {n:"Cambodia", cur:"Cambodian Riel", c:"KHR"},
-  {n:"Cameroon", cur:"Central African CFA Franc", c:"XAF"},
-  {n:"Canada", cur:"Canadian Dollar", c:"CAD"},
-  {n:"Central African Republic", cur:"Central African CFA Franc", c:"XAF"},
-  {n:"Chad", cur:"Central African CFA Franc", c:"XAF"},
-  {n:"Chile", cur:"Chilean Peso", c:"CLP"},
-  {n:"China", cur:"Chinese Yuan", c:"CNY"},
-  {n:"Colombia", cur:"Colombian Peso", c:"COP"},
-  {n:"Comoros", cur:"Comorian Franc", c:"KMF"},
-  {n:"Congo (Republic)", cur:"Central African CFA Franc", c:"XAF"},
-  {n:"Congo (DRC)", cur:"Congolese Franc", c:"CDF"},
-  {n:"Costa Rica", cur:"Costa Rican Colón", c:"CRC"},
-  {n:"Côte d'Ivoire", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Croatia", cur:"Euro", c:"EUR"},
-  {n:"Cuba", cur:"Cuban Peso", c:"CUP"},
-  {n:"Cyprus", cur:"Euro", c:"EUR"},
-  {n:"Czechia", cur:"Czech Koruna", c:"CZK"},
-  {n:"Denmark", cur:"Danish Krone", c:"DKK"},
-  {n:"Djibouti", cur:"Djiboutian Franc", c:"DJF"},
-  {n:"Dominica", cur:"East Caribbean Dollar", c:"XCD"},
-  {n:"Dominican Republic", cur:"Dominican Peso", c:"DOP"},
-  {n:"Ecuador", cur:"United States Dollar", c:"USD"},
-  {n:"Egypt", cur:"Egyptian Pound", c:"EGP"},
-  {n:"El Salvador", cur:"United States Dollar", c:"USD"},
-  {n:"Equatorial Guinea", cur:"Central African CFA Franc", c:"XAF"},
-  {n:"Eritrea", cur:"Eritrean Nakfa", c:"ERN"},
-  {n:"Estonia", cur:"Euro", c:"EUR"},
-  {n:"Eswatini", cur:"Swazi Lilangeni", c:"SZL"},
-  {n:"Ethiopia", cur:"Ethiopian Birr", c:"ETB"},
-  {n:"Fiji", cur:"Fijian Dollar", c:"FJD"},
-  {n:"Finland", cur:"Euro", c:"EUR"},
-  {n:"France", cur:"Euro", c:"EUR"},
-  {n:"Gabon", cur:"Central African CFA Franc", c:"XAF"},
-  {n:"Gambia", cur:"Gambian Dalasi", c:"GMD"},
-  {n:"Georgia", cur:"Georgian Lari", c:"GEL"},
-  {n:"Germany", cur:"Euro", c:"EUR"},
-  {n:"Ghana", cur:"Ghanaian Cedi", c:"GHS"},
-  {n:"Greece", cur:"Euro", c:"EUR"},
-  {n:"Grenada", cur:"East Caribbean Dollar", c:"XCD"},
-  {n:"Guatemala", cur:"Guatemalan Quetzal", c:"GTQ"},
-  {n:"Guinea", cur:"Guinean Franc", c:"GNF"},
-  {n:"Guinea-Bissau", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Guyana", cur:"Guyanese Dollar", c:"GYD"},
-  {n:"Haiti", cur:"Haitian Gourde", c:"HTG"},
-  {n:"Honduras", cur:"Honduran Lempira", c:"HNL"},
-  {n:"Hungary", cur:"Hungarian Forint", c:"HUF"},
-  {n:"Iceland", cur:"Icelandic Króna", c:"ISK"},
-  {n:"India", cur:"Indian Rupee", c:"INR"},
-  {n:"Indonesia", cur:"Indonesian Rupiah", c:"IDR"},
-  {n:"Iran", cur:"Iranian Rial", c:"IRR"},
-  {n:"Iraq", cur:"Iraqi Dinar", c:"IQD"},
-  {n:"Ireland", cur:"Euro", c:"EUR"},
-  {n:"Israel", cur:"Israeli New Shekel", c:"ILS"},
-  {n:"Italy", cur:"Euro", c:"EUR"},
-  {n:"Jamaica", cur:"Jamaican Dollar", c:"JMD"},
-  {n:"Japan", cur:"Japanese Yen", c:"JPY"},
-  {n:"Jordan", cur:"Jordanian Dinar", c:"JOD"},
-  {n:"Kazakhstan", cur:"Kazakhstani Tenge", c:"KZT"},
-  {n:"Kenya", cur:"Kenyan Shilling", c:"KES"},
-  {n:"Kiribati", cur:"Australian Dollar", c:"AUD"},
-  {n:"Korea, North", cur:"North Korean Won", c:"KPW"},
-  {n:"Korea, South", cur:"South Korean Won", c:"KRW"},
-  {n:"Kuwait", cur:"Kuwaiti Dinar", c:"KWD"},
-  {n:"Kyrgyzstan", cur:"Kyrgyzstani Som", c:"KGS"},
-  {n:"Laos", cur:"Lao Kip", c:"LAK"},
-  {n:"Latvia", cur:"Euro", c:"EUR"},
-  {n:"Lebanon", cur:"Lebanese Pound", c:"LBP"},
-  {n:"Lesotho", cur:"Lesotho Loti", c:"LSL"},
-  {n:"Liberia", cur:"Liberian Dollar", c:"LRD"},
-  {n:"Libya", cur:"Libyan Dinar", c:"LYD"},
-  {n:"Liechtenstein", cur:"Swiss Franc", c:"CHF"},
-  {n:"Lithuania", cur:"Euro", c:"EUR"},
-  {n:"Luxembourg", cur:"Euro", c:"EUR"},
-  {n:"Madagascar", cur:"Malagasy Ariary", c:"MGA"},
-  {n:"Malawi", cur:"Malawian Kwacha", c:"MWK"},
-  {n:"Malaysia", cur:"Malaysian Ringgit", c:"MYR"},
-  {n:"Maldives", cur:"Maldivian Rufiyaa", c:"MVR"},
-  {n:"Mali", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Malta", cur:"Euro", c:"EUR"},
-  {n:"Marshall Islands", cur:"United States Dollar", c:"USD"},
-  {n:"Mauritania", cur:"Mauritanian Ouguiya", c:"MRU"},
-  {n:"Mauritius", cur:"Mauritian Rupee", c:"MUR"},
-  {n:"Mexico", cur:"Mexican Peso", c:"MXN"},
-  {n:"Micronesia", cur:"United States Dollar", c:"USD"},
-  {n:"Moldova", cur:"Moldovan Leu", c:"MDL"},
-  {n:"Monaco", cur:"Euro", c:"EUR"},
-  {n:"Mongolia", cur:"Mongolian Tögrög", c:"MNT"},
-  {n:"Montenegro", cur:"Euro", c:"EUR"},
-  {n:"Morocco", cur:"Moroccan Dirham", c:"MAD"},
-  {n:"Mozambique", cur:"Mozambican Metical", c:"MZN"},
-  {n:"Myanmar", cur:"Burmese Kyat", c:"MMK"},
-  {n:"Namibia", cur:"Namibian Dollar", c:"NAD"},
-  {n:"Nauru", cur:"Australian Dollar", c:"AUD"},
-  {n:"Nepal", cur:"Nepalese Rupee", c:"NPR"},
-  {n:"Netherlands", cur:"Euro", c:"EUR"},
-  {n:"New Zealand", cur:"New Zealand Dollar", c:"NZD"},
-  {n:"Nicaragua", cur:"Nicaraguan Córdoba", c:"NIO"},
-  {n:"Niger", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Nigeria", cur:"Nigerian Naira", c:"NGN"},
-  {n:"North Macedonia", cur:"Macedonian Denar", c:"MKD"},
-  {n:"Norway", cur:"Norwegian Krone", c:"NOK"},
-  {n:"Oman", cur:"Omani Rial", c:"OMR"},
-  {n:"Pakistan", cur:"Pakistani Rupee", c:"PKR"},
-  {n:"Palau", cur:"United States Dollar", c:"USD"},
-  {n:"Panama", cur:"United States Dollar", c:"USD"},
-  {n:"Papua New Guinea", cur:"Papua New Guinean Kina", c:"PGK"},
-  {n:"Paraguay", cur:"Paraguayan Guaraní", c:"PYG"},
-  {n:"Peru", cur:"Peruvian Sol", c:"PEN"},
-  {n:"Philippines", cur:"Philippine Peso", c:"PHP"},
-  {n:"Poland", cur:"Polish Złoty", c:"PLN"},
-  {n:"Portugal", cur:"Euro", c:"EUR"},
-  {n:"Qatar", cur:"Qatari Riyal", c:"QAR"},
-  {n:"Romania", cur:"Romanian Leu", c:"RON"},
-  {n:"Russia", cur:"Russian Ruble", c:"RUB"},
-  {n:"Rwanda", cur:"Rwandan Franc", c:"RWF"},
-  {n:"Saint Kitts and Nevis", cur:"East Caribbean Dollar", c:"XCD"},
-  {n:"Saint Lucia", cur:"East Caribbean Dollar", c:"XCD"},
-  {n:"Saint Vincent and the Grenadines", cur:"East Caribbean Dollar", c:"XCD"},
-  {n:"Samoa", cur:"Samoan Tālā", c:"WST"},
-  {n:"San Marino", cur:"Euro", c:"EUR"},
-  {n:"Sao Tome and Principe", cur:"São Tomé and Príncipe Dobra", c:"STN"},
-  {n:"Saudi Arabia", cur:"Saudi Riyal", c:"SAR"},
-  {n:"Senegal", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Serbia", cur:"Serbian Dinar", c:"RSD"},
-  {n:"Seychelles", cur:"Seychellois Rupee", c:"SCR"},
-  {n:"Sierra Leone", cur:"Sierra Leonean Leone", c:"SLL"},
-  {n:"Singapore", cur:"Singapore Dollar", c:"SGD"},
-  {n:"Slovakia", cur:"Euro", c:"EUR"},
-  {n:"Slovenia", cur:"Euro", c:"EUR"},
-  {n:"Solomon Islands", cur:"Solomon Islands Dollar", c:"SBD"},
-  {n:"Somalia", cur:"Somali Shilling", c:"SOS"},
-  {n:"South Africa", cur:"South African Rand", c:"ZAR"},
-  {n:"South Sudan", cur:"South Sudanese Pound", c:"SSP"},
-  {n:"Spain", cur:"Euro", c:"EUR"},
-  {n:"Sri Lanka", cur:"Sri Lankan Rupee", c:"LKR"},
-  {n:"Sudan", cur:"Sudanese Pound", c:"SDG"},
-  {n:"Suriname", cur:"Surinamese Dollar", c:"SRD"},
-  {n:"Sweden", cur:"Swedish Krona", c:"SEK"},
-  {n:"Switzerland", cur:"Swiss Franc", c:"CHF"},
-  {n:"Syria", cur:"Syrian Pound", c:"SYP"},
-  {n:"Tajikistan", cur:"Tajikistani Somoni", c:"TJS"},
-  {n:"Tanzania", cur:"Tanzanian Shilling", c:"TZS"},
-  {n:"Thailand", cur:"Thai Baht", c:"THB"},
-  {n:"Timor-Leste", cur:"United States Dollar", c:"USD"},
-  {n:"Togo", cur:"West African CFA Franc", c:"XOF"},
-  {n:"Tonga", cur:"Tongan Paʻanga", c:"TOP"},
-  {n:"Trinidad and Tobago", cur:"Trinidad and Tobago Dollar", c:"TTD"},
-  {n:"Tunisia", cur:"Tunisian Dinar", c:"TND"},
-  {n:"Turkey", cur:"Turkish Lira", c:"TRY"},
-  {n:"Turkmenistan", cur:"Turkmenistani Manat", c:"TMT"},
-  {n:"Tuvalu", cur:"Australian Dollar", c:"AUD"},
-  {n:"Uganda", cur:"Ugandan Shilling", c:"UGX"},
-  {n:"Ukraine", cur:"Ukrainian Hryvnia", c:"UAH"},
-  {n:"United Arab Emirates", cur:"UAE Dirham", c:"AED"},
-  {n:"United Kingdom", cur:"Pound Sterling", c:"GBP"},
-  {n:"United States", cur:"United States Dollar", c:"USD"},
-  {n:"Uruguay", cur:"Uruguayan Peso", c:"UYU"},
-  {n:"Uzbekistan", cur:"Uzbekistani So'm", c:"UZS"},
-  {n:"Vanuatu", cur:"Vanuatu Vatu", c:"VUV"},
-  {n:"Vatican City", cur:"Euro", c:"EUR"},
-  {n:"Venezuela", cur:"Venezuelan Bolívar", c:"VES"},
-  {n:"Vietnam", cur:"Vietnamese Đồng", c:"VND"},
-  {n:"Yemen", cur:"Yemeni Rial", c:"YER"},
-  {n:"Zambia", cur:"Zambian Kwacha", c:"ZMW"},
-  {n:"Zimbabwe", cur:"Zimbabwean Dollar", c:"ZWL"}
-];
+// 192-country list
+const countryCurrencies = {
+"AFN":"Afghanistan – Afghani (AFN)","ALL":"Albania – Lek (ALL)","DZD":"Algeria – Dinar (DZD)","USD":"United States – US Dollar (USD)","EUR":"European Union – Euro (EUR)","AOA":"Angola – Kwanza (AOA)","XCD":"Antigua & Barbuda – East Caribbean Dollar (XCD)","ARS":"Argentina – Peso (ARS)","AMD":"Armenia – Dram (AMD)","AWG":"Aruba – Florin (AWG)","AUD":"Australia – Dollar (AUD)","AZN":"Azerbaijan – Manat (AZN)","BSD":"Bahamas – Dollar (BSD)","BHD":"Bahrain – Dinar (BHD)","BDT":"Bangladesh – Taka (BDT)","BBD":"Barbados – Dollar (BBD)","BYN":"Belarus – Ruble (BYN)","BZD":"Belize – Dollar (BZD)","XOF":"Benin – CFA Franc BCEAO (XOF)","BMD":"Bermuda – Dollar (BMD)","BTN":"Bhutan – Ngultrum (BTN)","BOB":"Bolivia – Boliviano (BOB)","BAM":"Bosnia & Herzegovina – Convertible Mark (BAM)","BWP":"Botswana – Pula (BWP)","BRL":"Brazil – Real (BRL)","GBP":"United Kingdom – Pound (GBP)","BND":"Brunei – Dollar (BND)","BGN":"Bulgaria – Lev (BGN)","BIF":"Burundi – Franc (BIF)","KHR":"Cambodia – Riel (KHR)","CAD":"Canada – Dollar (CAD)","CVE":"Cape Verde – Escudo (CVE)","KYD":"Cayman Islands – Dollar (KYD)","XAF":"Central African Republic – CFA Franc BEAC (XAF)","CLP":"Chile – Peso (CLP)","CNY":"China – Yuan Renminbi (CNY)","COP":"Colombia – Peso (COP)","KMF":"Comoros – Franc (KMF)","CDF":"Congo – Franc (CDF)","CRC":"Costa Rica – Colon (CRC)","HRK":"Croatia – Kuna (HRK)","CUC":"Cuba – Convertible Peso (CUC)","CUP":"Cuba – Peso (CUP)","CZK":"Czech Republic – Koruna (CZK)","DKK":"Denmark – Krone (DKK)","DJF":"Djibouti – Franc (DJF)","DOP":"Dominican Republic – Peso (DOP)","EGP":"Egypt – Pound (EGP)","SVC":"El Salvador – Colon (SVC)","ERN":"Eritrea – Nakfa (ERN)","ETB":"Ethiopia – Birr (ETB)","FKP":"Falkland Islands – Pound (FKP)","FJD":"Fiji – Dollar (FJD)","GMD":"Gambia – Dalasi (GMD)","GEL":"Georgia – Lari (GEL)","GHS":"Ghana – Cedi (GHS)","GIP":"Gibraltar – Pound (GIP)","GTQ":"Guatemala – Quetzal (GTQ)","GNF":"Guinea – Franc (GNF)","GYD":"Guyana – Dollar (GYD)","HTG":"Haiti – Gourde (HTG)","HNL":"Honduras – Lempira (HNL)","HKD":"Hong Kong – Dollar (HKD)","HUF":"Hungary – Forint (HUF)","ISK":"Iceland – Krona (ISK)","INR":"India – Rupee (INR)","IDR":"Indonesia – Rupiah (IDR)","IRR":"Iran – Rial (IRR)","IQD":"Iraq – Dinar (IQD)","ILS":"Israel – Shekel (ILS)","JMD":"Jamaica – Dollar (JMD)","JPY":"Japan – Yen (JPY)","JOD":"Jordan – Dinar (JOD)","KZT":"Kazakhstan – Tenge (KZT)","KES":"Kenya – Shilling (KES)","KWD":"Kuwait – Dinar (KWD)","KGS":"Kyrgyzstan – Som (KGS)","LAK":"Laos – Kip (LAK)","LBP":"Lebanon – Pound (LBP)","LSL":"Lesotho – Loti (LSL)","LRD":"Liberia – Dollar (LRD)","LYD":"Libya – Dinar (LYD)","CHF":"Switzerland – Franc (CHF)","LTL":"Lithuania – Litas (LTL)","MOP":"Macau – Pataca (MOP)","MKD":"North Macedonia – Denar (MKD)","MGA":"Madagascar – Ariary (MGA)","MWK":"Malawi – Kwacha (MWK)","MYR":"Malaysia – Ringgit (MYR)","MVR":"Maldives – Rufiyaa (MVR)","MRO":"Mauritania – Ouguiya (MRO)","MUR":"Mauritius – Rupee (MUR)","MXN":"Mexico – Peso (MXN)","MDL":"Moldova – Leu (MDL)","MNT":"Mongolia – Tugrik (MNT)","MAD":"Morocco – Dirham (MAD)","MZN":"Mozambique – Metical (MZN)","MMK":"Myanmar – Kyat (MMK)","NAD":"Namibia – Dollar (NAD)","NPR":"Nepal – Rupee (NPR)","ANG":"Netherlands Antilles – Guilder (ANG)","TWD":"Taiwan – Dollar (TWD)","NZD":"New Zealand – Dollar (NZD)","NIO":"Nicaragua – Cordoba (NIO)","NGN":"Nigeria – Naira (NGN)","KPW":"North Korea – Won (KPW)","NOK":"Norway – Krone (NOK)","OMR":"Oman – Rial (OMR)","PKR":"Pakistan – Rupee (PKR)","PAB":"Panama – Balboa (PAB)","PGK":"Papua New Guinea – Kina (PGK)","PYG":"Paraguay – Guarani (PYG)","PEN":"Peru – Sol (PEN)","PHP":"Philippines – Peso (PHP)","PLN":"Poland – Zloty (PLN)","QAR":"Qatar – Riyal (QAR)","RON":"Romania – Leu (RON)","RUB":"Russia – Ruble (RUB)","RWF":"Rwanda – Franc (RWF)","SHP":"Saint Helena – Pound (SHP)","WST":"Samoa – Tala (WST)","SAR":"Saudi Arabia – Riyal (SAR)","RSD":"Serbia – Dinar (RSD)","SCR":"Seychelles – Rupee (SCR)","SLL":"Sierra Leone – Leone (SLL)","SGD":"Singapore – Dollar (SGD)","SBD":"Solomon Islands – Dollar (SBD)","SOS":"Somalia – Shilling (SOS)","ZAR":"South Africa – Rand (ZAR)","KRW":"South Korea – Won (KRW)","SSP":"South Sudan – Pound (SSP)","LKR":"Sri Lanka – Rupee (LKR)","SDG":"Sudan – Pound (SDG)","SRD":"Suriname – Dollar (SRD)","SZL":"Eswatini – Lilangeni (SZL)","SEK":"Sweden – Krona (SEK)","SYP":"Syria – Pound (SYP)","TJS":"Tajikistan – Somoni (TJS)","TZS":"Tanzania – Shilling (TZS)","THB":"Thailand – Baht (THB)","TOP":"Tonga – Pa'anga (TOP)","TTD":"Trinidad & Tobago – Dollar (TTD)","TND":"Tunisia – Dinar (TND)","TRY":"Turkey – Lira (TRY)","TMT":"Turkmenistan – Manat (TMT)","UGX":"Uganda – Shilling (UGX)","UAH":"Ukraine – Hryvnia (UAH)","AED":"UAE – Dirham (AED)","UYU":"Uruguay – Peso (UYU)","UZS":"Uzbekistan – Som (UZS)","VUV":"Vanuatu – Vatu (VUV)","VEF":"Venezuela – Bolívar (VEF)","VND":"Vietnam – Dong (VND)","YER":"Yemen – Rial (YER)","ZMW":"Zambia – Kwacha (ZMW)","ZWL":"Zimbabwe – Dollar (ZWL)"
+};
 
-const amountInput = document.getElementById('amount');
-const fromSelect = document.getElementById('fromCurrency');
-const toSelect = document.getElementById('toCurrency');
-const resultDiv = document.getElementById('result');
-const loadingEl = document.getElementById('loading');
-const lastUpdatedEl = document.getElementById('lastUpdated');
-const convertBtn = document.getElementById('convertBtn');
-const toggleDarkBtn = document.getElementById('toggleDark');
+// Populate dropdowns
+const fromDropdown=document.getElementById("fromCurrency");
+const toDropdown=document.getElementById("toCurrency");
+for(let code in countryCurrencies){
+  let opt1=document.createElement("option");opt1.value=code;opt1.textContent=countryCurrencies[code];fromDropdown.appendChild(opt1);
+  let opt2=document.createElement("option");opt2.value=code;opt2.textContent=countryCurrencies[code];toDropdown.appendChild(opt2);
+}
+fromDropdown.value="USD";toDropdown.value="INR";
 
-let rates = {};
-
-async function fetchRates(){
+// Conversion
+async function convertCurrency(){
+  const amount=document.getElementById("amount").value;
+  const from=fromDropdown.value;
+  const to=toDropdown.value;
+  if(amount===""||isNaN(amount)){document.getElementById("result").textContent="Enter a valid amount";return;}
   try{
-    loadingEl.textContent = 'Fetching live exchange rates...';
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
-    if(!res.ok) throw new Error('Failed to fetch rates');
-    const data = await res.json();
-    rates = data.rates || {};
-    loadingEl.textContent = 'Rates updated ✓';
-    lastUpdatedEl.textContent = 'Last updated: ' + new Date().toLocaleString();
-    setTimeout(()=> loadingEl.textContent = '', 2500);
-    populateDropdowns();
-  }catch(e){
-    console.error(e);
-    loadingEl.textContent = 'Failed to fetch live rates. Using dropdowns anyway.';
-    populateDropdowns();
-  }
+    const res=await fetch(`https://api.exchangerate.host/latest?base=${from}&symbols=${to}`);
+    const data=await res.json();
+    const rate=data.rates[to];
+    const converted=(amount*rate).toFixed(2);
+    document.getElementById("result").textContent=`${amount} ${from} = ${converted} ${to}`;
+  }catch(e){document.getElementById("result").textContent="Error fetching rates";}
 }
 
-function populateDropdowns(){
-  fromSelect.innerHTML = '';
-  toSelect.innerHTML = '';
-  COUNTRY_CURRENCY.forEach(({n,cur,c})=>{
-    const supported = !!rates[c];
-    const label = `${n} – ${cur} (${c})${supported? '':' – unavailable'}`;
-    const o1 = document.createElement('option');
-    o1.value = c; o1.textContent = label; o1.disabled = !supported;
-    const o2 = o1.cloneNode(true);
-    fromSelect.appendChild(o1); toSelect.appendChild(o2);
-  });
-  // defaults if available
-  const trySet = (sel, code)=>{ const opt=[...sel.options].find(o=>o.value===code && !o.disabled); if(opt) sel.value = code; };
-  trySet(fromSelect,'USD');
-  trySet(toSelect,'INR');
-}
+// Dark Mode Toggle
+function toggleDarkMode(){document.body.classList.toggle("dark");}
 
-function convert(amount, from, to){
-  if(!rates[from] || !rates[to]) return null;
-  const usd = amount / rates[from];
-  return usd * rates[to];
-}
+// Base64 Icon manifest
+const base64Icon="iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABF0lEQVRYR+2VMQ6CMAxF3ykK0Qh6P5pOjB0HKHF4c70AhyH3AbIZMLiXnv2MTjX4/1rSInyV0nM8tApP33+MGwDhGkDG8wMD1DmP0tHJv6RkuJAmZTP7VhtniHeAMZ0aTPmuAHoESf8o6M+4Q2RjqIMoLxrN9ho2iVYBkZKMq/8/0VvSvwfZqN16RbmRDb7tE+0i/fuhvAqDWU9OxARwWjKk6sBDfFRa9sL3y7o0mHQJgGHuYh4pIf8P0I6Al+3sP3Tf16UvIKh9MxIuqWnhL6gAAAABJRU5ErkJggg==";
+const manifest={name:"Curenja",short_name:"Curenja",start_url:".",display:"standalone",background_color:"#1e1e1e",theme_color:"#1e1e1e",icons:[{src:"data:image/png;base64,"+base64Icon,sizes:"192x192",type:"image/png"},{src:"data:image/png;base64,"+base64Icon,sizes:"512x512",type:"image/png"}]};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.querySelector('link[rel="manifest"]').setAttribute('href',URL.createObjectURL(blob));
 
-convertBtn.addEventListener('click', ()=>{
-  const amount = parseFloat(amountInput.value);
-  const from = fromSelect.value; const to = toSelect.value;
-  if(isNaN(amount) || amount<=0){ resultDiv.textContent = 'Please enter a valid amount.'; return; }
-  const out = convert(amount, from, to);
-  if(out===null){ resultDiv.textContent = 'Conversion not available for the selected currencies.'; return; }
-  resultDiv.innerHTML = `${amount.toFixed(2)} ${from} = <span>${out.toFixed(2)} ${to}</span>`;
-});
-
-// Dark mode toggle with persistence
-(function(){
-  const saved = localStorage.getItem('curenja-theme');
-  const prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const startDark = saved ? saved==='dark' : prefers;
-  document.body.classList.toggle('dark', startDark);
-  toggleDarkBtn.textContent = startDark ? '☀️' : '🌙';
-  toggleDarkBtn.addEventListener('click', ()=>{
-    const nowDark = document.body.classList.toggle('dark');
-    toggleDarkBtn.textContent = nowDark ? '☀️' : '🌙';
-    localStorage.setItem('curenja-theme', nowDark ? 'dark' : 'light');
-  });
-})();
-
-fetchRates();
+// Optional: service worker
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(console.error);}
 </script>
 </body>
 </html>
