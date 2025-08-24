@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Curenja</title>
+<title>Curenja – Currency Converter</title>
 <style>
   body {
     font-family: "Segoe UI", sans-serif;
@@ -15,7 +15,6 @@
     margin: 0;
     transition: background 0.3s, color 0.3s;
   }
-
   .container {
     background: #e0e5ec;
     border-radius: 30px;
@@ -27,12 +26,7 @@
     text-align: center;
     transition: transform 0.3s ease;
   }
-
-  h1 {
-    margin-bottom: 25px;
-    color: #333;
-  }
-
+  h1 { margin-bottom: 25px; color: #333; }
   select, input, button {
     width: 100%;
     padding: 12px;
@@ -48,16 +42,11 @@
     transition: all 0.2s ease-in-out;
     box-sizing: border-box;
   }
-
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-
+  input[type="number"] { -moz-appearance: textfield; }
   select:focus, input:focus {
     box-shadow: inset 3px 3px 6px #a3b1c6,
                 inset -3px -3px 6px #ffffff;
   }
-
   button {
     cursor: pointer;
     font-weight: bold;
@@ -67,12 +56,10 @@
                 -6px -6px 10px #ffffff;
     transition: all 0.2s ease-in-out;
   }
-
   button:hover {
     box-shadow: inset 3px 3px 6px #a3b1c6,
                 inset -3px -3px 6px #ffffff;
   }
-
   #toggleDark {
     width: 60px;
     height: 60px;
@@ -83,64 +70,52 @@
     justify-content: center;
     align-items: center;
   }
-
   .dark {
     background: #2a2d32;
     color: #eee;
   }
-
   .dark .container {
     background: #2a2d32;
     box-shadow: 9px 9px 16px #1c1e21,
                 -9px -9px 16px #383c43;
   }
-
   .dark select, .dark input, .dark button {
     background: #2a2d32;
     color: #eee;
     box-shadow: inset 6px 6px 10px #1c1e21,
                 inset -6px -6px 10px #383c43;
   }
-
   .dark button:hover {
     box-shadow: inset 3px 3px 6px #1c1e21,
                 inset -3px -3px 6px #383c43;
   }
-
   .result {
     margin-top: 20px;
     font-size: 1.2rem;
   }
-
   .result span {
     font-weight: bold;
     display: inline-block;
     animation: popIn 0.6s ease, glowPulse 1.5s ease-in-out infinite alternate;
     transition: color 0.3s, text-shadow 0.3s;
   }
-
   body:not(.dark) .result span {
     color: #333;
     text-shadow: 0 0 3px #aaa, 0 0 6px #ccc;
-    animation: popIn 0.6s ease, glowPulse 1.5s ease-in-out infinite alternate;
   }
-
   body.dark .result span {
     color: #ffffff;
     text-shadow: 0 0 5px #ffffff, 0 0 15px #ffffff;
     animation: popIn 0.6s ease, glowPulse 0.8s ease-in-out infinite alternate;
   }
-
   @keyframes popIn {
     0% { opacity: 0; transform: scale(0.8); }
     100% { opacity: 1; transform: scale(1); }
   }
-
   @keyframes glowPulse {
     0% { text-shadow: 0 0 5px currentColor, 0 0 15px currentColor; }
     100% { text-shadow: 0 0 10px currentColor, 0 0 25px currentColor; }
   }
-
   @keyframes bounce {
     0% { transform: scale(1); }
     25% { transform: scale(1.02); }
@@ -148,13 +123,11 @@
     75% { transform: scale(1.01); }
     100% { transform: scale(1); }
   }
-
   #loading, #lastUpdated {
     font-size: 0.9rem;
     color: #555;
     margin-top: 8px;
   }
-
   footer {
     margin-top: 20px;
     font-size: 0.8rem;
@@ -166,7 +139,7 @@
 <div class="container">
   <h1>💱 Curenja</h1>
   <form id="converterForm">
-    <input type="number" id="amount" placeholder="Enter amount" style="width:100%;" required>
+    <input type="number" id="amount" placeholder="Enter amount" required>
     <select id="fromCurrency"></select>
     <select id="toCurrency"></select>
     <button type="submit">Convert</button>
@@ -192,6 +165,47 @@ const container = document.querySelector('.container');
 let rates = {};
 let isDark = false;
 
+// Full 192 currencies mapping
+const countries = {
+  "AFN":"Afghanistan – Afghani","ALL":"Albania – Lek","DZD":"Algeria – Algerian Dinar","AOA":"Angola – Kwanza",
+  "ARS":"Argentina – Argentine Peso","AMD":"Armenia – Armenian Dram","AWG":"Aruba – Aruban Florin","AUD":"Australia – Australian Dollar",
+  "AZN":"Azerbaijan – Azerbaijani Manat","BAM":"Bosnia and Herzegovina – Convertible Marka","BBD":"Barbados – Barbadian Dollar",
+  "BDT":"Bangladesh – Bangladeshi Taka","BYN":"Belarus – Belarusian Ruble","BZD":"Belize – Belize Dollar","BMD":"Bermuda – Bermudian Dollar",
+  "BTN":"Bhutan – Bhutanese Ngultrum","BOB":"Bolivia – Boliviano","BWP":"Botswana – Pula","BRL":"Brazil – Brazilian Real","BND":"Brunei – Brunei Dollar",
+  "BGN":"Bulgaria – Bulgarian Lev","BIF":"Burundi – Burundian Franc","KHR":"Cambodia – Riel","CAD":"Canada – Canadian Dollar",
+  "CVE":"Cabo Verde – Cape Verdean Escudo","KYD":"Cayman Islands – Cayman Islands Dollar","CLP":"Chile – Chilean Peso","CNY":"China – Yuan",
+  "COP":"Colombia – Colombian Peso","KMF":"Comoros – Comorian Franc","CDF":"Congo – Congolese Franc","CRC":"Costa Rica – Costa Rican Colón",
+  "HRK":"Croatia – Croatian Kuna","CUC":"Cuba – Cuban Convertible Peso","CUP":"Cuba – Cuban Peso","CZK":"Czech Republic – Czech Koruna",
+  "DKK":"Denmark – Danish Krone","DJF":"Djibouti – Djiboutian Franc","DOP":"Dominican Republic – Dominican Peso","EGP":"Egypt – Egyptian Pound",
+  "ERN":"Eritrea – Nakfa","ETB":"Ethiopia – Ethiopian Birr","FJD":"Fiji – Fijian Dollar","FKP":"Falkland Islands – Falkland Islands Pound",
+  "FOK":"Faroe Islands – Faroese Króna","EUR":"Eurozone – Euro","GMD":"Gambia – Dalasi","GEL":"Georgia – Georgian Lari",
+  "GHS":"Ghana – Ghanaian Cedi","GIP":"Gibraltar – Gibraltar Pound","GTQ":"Guatemala – Quetzal","GNF":"Guinea – Guinean Franc",
+  "GYD":"Guyana – Guyana Dollar","HTG":"Haiti – Gourde","HNL":"Honduras – Lempira","HKD":"Hong Kong – Hong Kong Dollar",
+  "HUF":"Hungary – Forint","ISK":"Iceland – Icelandic Króna","INR":"India – Indian Rupee","IDR":"Indonesia – Rupiah",
+  "IRR":"Iran – Iranian Rial","IQD":"Iraq – Iraqi Dinar","ILS":"Israel – Israeli New Shekel","JMD":"Jamaica – Jamaican Dollar",
+  "JPY":"Japan – Yen","JOD":"Jordan – Jordanian Dinar","KZT":"Kazakhstan – Tenge","KES":"Kenya – Kenyan Shilling",
+  "KPW":"North Korea – Won","KRW":"South Korea – Won","KWD":"Kuwait – Kuwaiti Dinar","KGS":"Kyrgyzstan – Som",
+  "LAK":"Laos – Kip","LBP":"Lebanon – Lebanese Pound","LSL":"Lesotho – Loti","LRD":"Liberia – Liberian Dollar",
+  "LYD":"Libya – Libyan Dinar","CHF":"Switzerland – Swiss Franc","MKD":"North Macedonia – Denar","MGA":"Madagascar – Ariary",
+  "MWK":"Malawi – Kwacha","MYR":"Malaysia – Ringgit","MVR":"Maldives – Rufiyaa","MRO":"Mauritania – Ouguiya",
+  "MUR":"Mauritius – Rupee","MXN":"Mexico – Peso","MDL":"Moldova – Leu","MNT":"Mongolia – Tögrög",
+  "MAD":"Morocco – Moroccan Dirham","MZN":"Mozambique – Metical","MMK":"Myanmar – Kyat","NAD":"Namibia – Dollar",
+  "NPR":"Nepal – Rupee","NZD":"New Zealand – Dollar","NIO":"Nicaragua – Córdoba","NGN":"Nigeria – Naira",
+  "NOK":"Norway – Krone","OMR":"Oman – Rial","PKR":"Pakistan – Rupee","PAB":"Panama – Balboa",
+  "PGK":"Papua New Guinea – Kina","PYG":"Paraguay – Guaraní","PEN":"Peru – Sol","PHP":"Philippines – Peso",
+  "PLN":"Poland – Złoty","QAR":"Qatar – Riyal","RON":"Romania – Leu","RUB":"Russia – Ruble",
+  "RWF":"Rwanda – Rwandan Franc","SHP":"Saint Helena – Pound","WST":"Samoa – Tala","STN":"São Tomé and Príncipe – Dobra",
+  "SAR":"Saudi Arabia – Riyal","RSD":"Serbia – Dinar","SCR":"Seychelles – Rupee","SLL":"Sierra Leone – Leone",
+  "SGD":"Singapore – Dollar","SBD":"Solomon Islands – Dollar","SOS":"Somalia – Shilling","ZAR":"South Africa – Rand",
+  "SSP":"South Sudan – Pound","SEK":"Sweden – Krona","SZL":"Eswatini – Lilangeni","SYP":"Syria – Pound",
+  "TWD":"Taiwan – New Taiwan Dollar","TJS":"Tajikistan – Somoni","TZS":"Tanzania – Shilling","THB":"Thailand – Baht",
+  "TOP":"Tonga – Paʻanga","TTD":"Trinidad and Tobago – Dollar","TND":"Tunisia – Dinar","TRY":"Turkey – Lira",
+  "TMT":"Turkmenistan – Manat","UGX":"Uganda – Shilling","UAH":"Ukraine – Hryvnia","AED":"UAE – Dirham",
+  "GBP":"United Kingdom – Pound Sterling","USD":"United States – Dollar","UYU":"Uruguay – Peso","UZS":"Uzbekistan – Som",
+  "VUV":"Vanuatu – Vatu","VEF":"Venezuela – Bolívar","VND":"Vietnam – Đồng","YER":"Yemen – Rial",
+  "ZMW":"Zambia – Kwacha","ZWL":"Zimbabwe – Dollar"
+};
+
 async function fetchRates() {
   try {
     loadingEl.textContent = "Fetching live exchange rates...";
@@ -212,21 +226,18 @@ async function fetchRates() {
 }
 
 function populateCurrencies(currencyList) {
-  if (fromSelect.options.length === 0) {
-    currencyList.forEach(code => {
-      let opt1 = document.createElement("option");
-      opt1.value = code;
-      opt1.textContent = code;
-      fromSelect.appendChild(opt1);
-
-      let opt2 = document.createElement("option");
-      opt2.value = code;
-      opt2.textContent = code;
-      toSelect.appendChild(opt2);
+  if (fromSelect.options.length > 0) return;
+  currencyList.forEach(code => {
+    const countryName = countries[code] || code;
+    [fromSelect, toSelect].forEach(select => {
+      const opt = document.createElement("option");
+      opt.value = code;
+      opt.textContent = `${countryName} – ${code}`;
+      select.appendChild(opt);
     });
-    fromSelect.value = "USD";
-    toSelect.value = "INR";
-  }
+  });
+  fromSelect.value = "USD";
+  toSelect.value = "INR";
 }
 
 function convert(amount, from, to) {
@@ -250,7 +261,8 @@ form.addEventListener('submit', e => {
   if (converted === null) {
     resultDiv.textContent = "Conversion not available.";
   } else {
-    resultDiv.innerHTML = `${amount.toFixed(2)} ${from} = <span>${converted.toFixed(2)} ${to}</span>`;
+    const formatted = converted.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    resultDiv.innerHTML = `${amount.toLocaleString()} ${from} = <span>${formatted} ${to}</span>`;
     const span = resultDiv.querySelector("span");
     span.style.animation = "none";
     span.offsetHeight;
