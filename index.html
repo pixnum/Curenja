@@ -4,76 +4,273 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Curenja</title>
-<link rel="manifest" href="manifest.json">
 <style>
-body {font-family: Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#e0e0e0;transition: background 0.3s,color 0.3s;}
-body.dark {background:#1e1e1e;color:#fff;}
-h1 {margin-bottom:20px;font-size:2rem;text-align:center;}
-.container {background:#e0e0e0;padding:30px;border-radius:20px;box-shadow:9px 9px 16px #bebebe,-9px -9px 16px #ffffff;width:90%;max-width:400px;text-align:center;}
-body.dark .container {background:#2c2c2c;box-shadow:9px 9px 16px #1a1a1a,-9px -9px 16px #3a3a3a;}
-input, select, button {width:100%;padding:12px;margin:10px 0;border:none;border-radius:12px;outline:none;font-size:1rem;box-shadow: inset 3px 3px 6px #bebebe,inset -3px -3px 6px #ffffff;}
-body.dark input, body.dark select, body.dark button {box-shadow: inset 3px 3px 6px #1a1a1a,inset -3px -3px 6px #3a3a3a;background:#2c2c2c;color:#fff;}
-button {cursor:pointer;font-weight:bold;background:#e0e0e0;}
-body.dark button {background:#2c2c2c;}
-.result {margin-top:20px;font-size:1.3rem;font-weight:bold;color:white;text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;animation:pulse 1.5s infinite;}
-@keyframes pulse {0% {text-shadow:0 0 5px #00ffcc;}50% {text-shadow:0 0 20px #00ffcc;}100% {text-shadow:0 0 5px #00ffcc;}}
-.dark-toggle {margin-top:20px;padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-weight:bold;box-shadow:3px 3px 6px #bebebe,-3px -3px 6px #ffffff;}
-body.dark .dark-toggle {box-shadow:3px 3px 6px #1a1a1a,-3px -3px 6px #3a3a3a;background:#2c2c2c;color:#fff;}
-footer {margin-top:20px;font-size:0.8rem;opacity:0.7;}
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background: #e0e5ec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .container {
+    background: #e0e5ec;
+    border-radius: 30px;
+    box-shadow: 9px 9px 16px #a3b1c6,
+                -9px -9px 16px #ffffff;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  h1 {
+    margin-bottom: 25px;
+    color: #333;
+  }
+
+  select, input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 15px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: #e0e5ec;
+    color: #333;
+    box-shadow: inset 6px 6px 10px #a3b1c6,
+                inset -6px -6px 10px #ffffff;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  select:focus, input:focus {
+    box-shadow: inset 3px 3px 6px #a3b1c6,
+                inset -3px -3px 6px #ffffff;
+  }
+
+  button {
+    cursor: pointer;
+    font-weight: bold;
+    background: #e0e5ec;
+    color: #333;
+    box-shadow: 6px 6px 10px #a3b1c6,
+                -6px -6px 10px #ffffff;
+    transition: all 0.2s ease-in-out;
+  }
+
+  button:hover {
+    box-shadow: inset 3px 3px 6px #a3b1c6,
+                inset -3px -3px 6px #ffffff;
+  }
+
+  #toggleDark {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .dark {
+    background: #2a2d32;
+    color: #eee;
+  }
+
+  .dark .container {
+    background: #2a2d32;
+    box-shadow: 9px 9px 16px #1c1e21,
+                -9px -9px 16px #383c43;
+  }
+
+  .dark select, .dark input, .dark button {
+    background: #2a2d32;
+    color: #eee;
+    box-shadow: inset 6px 6px 10px #1c1e21,
+                inset -6px -6px 10px #383c43;
+  }
+
+  .dark button:hover {
+    box-shadow: inset 3px 3px 6px #1c1e21,
+                inset -3px -3px 6px #383c43;
+  }
+
+  .result {
+    margin-top: 20px;
+    font-size: 1.2rem;
+  }
+
+  .result span {
+    font-weight: bold;
+    display: inline-block;
+    animation: popIn 0.6s ease, glowPulse 1.5s ease-in-out infinite alternate;
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+
+  body:not(.dark) .result span {
+    color: #333;
+    text-shadow: 0 0 3px #aaa, 0 0 6px #ccc;
+    animation: popIn 0.6s ease, glowPulse 1.5s ease-in-out infinite alternate;
+  }
+
+  body.dark .result span {
+    color: #ffffff;
+    text-shadow: 0 0 5px #ffffff, 0 0 15px #ffffff;
+    animation: popIn 0.6s ease, glowPulse 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes glowPulse {
+    0% { text-shadow: 0 0 5px currentColor, 0 0 15px currentColor; }
+    100% { text-shadow: 0 0 10px currentColor, 0 0 25px currentColor; }
+  }
+
+  @keyframes bounce {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.02); }
+    50% { transform: scale(0.98); }
+    75% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+  }
+
+  #loading, #lastUpdated {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 8px;
+  }
+
+  footer {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
 </style>
 </head>
 <body>
-<h1>💱 Curenja</h1>
 <div class="container">
-<input type="number" id="amount" placeholder="Enter Amount">
-<select id="fromCurrency"></select>
-<select id="toCurrency"></select>
-<button onclick="convertCurrency()">Convert</button>
-<div class="result" id="result"></div>
+  <h1>💱 Curenja</h1>
+  <form id="converterForm">
+    <input type="number" id="amount" placeholder="Enter amount" style="width:100%;" required>
+    <select id="fromCurrency"></select>
+    <select id="toCurrency"></select>
+    <button type="submit">Convert</button>
+  </form>
+  <div id="loading">Loading exchange rates...</div>
+  <div id="lastUpdated"></div>
+  <div class="result" id="result"></div>
+  <button id="toggleDark">🌙</button>
+  <footer>© Curenja 2025</footer>
 </div>
-<button class="dark-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-<footer>© Manik Roy 2025</footer>
+
 <script>
-// 192-country list
-const countryCurrencies = {
-"AFN":"Afghanistan – Afghani (AFN)","ALL":"Albania – Lek (ALL)","DZD":"Algeria – Dinar (DZD)","USD":"United States – US Dollar (USD)","EUR":"European Union – Euro (EUR)","AOA":"Angola – Kwanza (AOA)","XCD":"Antigua & Barbuda – East Caribbean Dollar (XCD)","ARS":"Argentina – Peso (ARS)","AMD":"Armenia – Dram (AMD)","AWG":"Aruba – Florin (AWG)","AUD":"Australia – Dollar (AUD)","AZN":"Azerbaijan – Manat (AZN)","BSD":"Bahamas – Dollar (BSD)","BHD":"Bahrain – Dinar (BHD)","BDT":"Bangladesh – Taka (BDT)","BBD":"Barbados – Dollar (BBD)","BYN":"Belarus – Ruble (BYN)","BZD":"Belize – Dollar (BZD)","XOF":"Benin – CFA Franc BCEAO (XOF)","BMD":"Bermuda – Dollar (BMD)","BTN":"Bhutan – Ngultrum (BTN)","BOB":"Bolivia – Boliviano (BOB)","BAM":"Bosnia & Herzegovina – Convertible Mark (BAM)","BWP":"Botswana – Pula (BWP)","BRL":"Brazil – Real (BRL)","GBP":"United Kingdom – Pound (GBP)","BND":"Brunei – Dollar (BND)","BGN":"Bulgaria – Lev (BGN)","BIF":"Burundi – Franc (BIF)","KHR":"Cambodia – Riel (KHR)","CAD":"Canada – Dollar (CAD)","CVE":"Cape Verde – Escudo (CVE)","KYD":"Cayman Islands – Dollar (KYD)","XAF":"Central African Republic – CFA Franc BEAC (XAF)","CLP":"Chile – Peso (CLP)","CNY":"China – Yuan Renminbi (CNY)","COP":"Colombia – Peso (COP)","KMF":"Comoros – Franc (KMF)","CDF":"Congo – Franc (CDF)","CRC":"Costa Rica – Colon (CRC)","HRK":"Croatia – Kuna (HRK)","CUC":"Cuba – Convertible Peso (CUC)","CUP":"Cuba – Peso (CUP)","CZK":"Czech Republic – Koruna (CZK)","DKK":"Denmark – Krone (DKK)","DJF":"Djibouti – Franc (DJF)","DOP":"Dominican Republic – Peso (DOP)","EGP":"Egypt – Pound (EGP)","SVC":"El Salvador – Colon (SVC)","ERN":"Eritrea – Nakfa (ERN)","ETB":"Ethiopia – Birr (ETB)","FKP":"Falkland Islands – Pound (FKP)","FJD":"Fiji – Dollar (FJD)","GMD":"Gambia – Dalasi (GMD)","GEL":"Georgia – Lari (GEL)","GHS":"Ghana – Cedi (GHS)","GIP":"Gibraltar – Pound (GIP)","GTQ":"Guatemala – Quetzal (GTQ)","GNF":"Guinea – Franc (GNF)","GYD":"Guyana – Dollar (GYD)","HTG":"Haiti – Gourde (HTG)","HNL":"Honduras – Lempira (HNL)","HKD":"Hong Kong – Dollar (HKD)","HUF":"Hungary – Forint (HUF)","ISK":"Iceland – Krona (ISK)","INR":"India – Rupee (INR)","IDR":"Indonesia – Rupiah (IDR)","IRR":"Iran – Rial (IRR)","IQD":"Iraq – Dinar (IQD)","ILS":"Israel – Shekel (ILS)","JMD":"Jamaica – Dollar (JMD)","JPY":"Japan – Yen (JPY)","JOD":"Jordan – Dinar (JOD)","KZT":"Kazakhstan – Tenge (KZT)","KES":"Kenya – Shilling (KES)","KWD":"Kuwait – Dinar (KWD)","KGS":"Kyrgyzstan – Som (KGS)","LAK":"Laos – Kip (LAK)","LBP":"Lebanon – Pound (LBP)","LSL":"Lesotho – Loti (LSL)","LRD":"Liberia – Dollar (LRD)","LYD":"Libya – Dinar (LYD)","CHF":"Switzerland – Franc (CHF)","LTL":"Lithuania – Litas (LTL)","MOP":"Macau – Pataca (MOP)","MKD":"North Macedonia – Denar (MKD)","MGA":"Madagascar – Ariary (MGA)","MWK":"Malawi – Kwacha (MWK)","MYR":"Malaysia – Ringgit (MYR)","MVR":"Maldives – Rufiyaa (MVR)","MRO":"Mauritania – Ouguiya (MRO)","MUR":"Mauritius – Rupee (MUR)","MXN":"Mexico – Peso (MXN)","MDL":"Moldova – Leu (MDL)","MNT":"Mongolia – Tugrik (MNT)","MAD":"Morocco – Dirham (MAD)","MZN":"Mozambique – Metical (MZN)","MMK":"Myanmar – Kyat (MMK)","NAD":"Namibia – Dollar (NAD)","NPR":"Nepal – Rupee (NPR)","ANG":"Netherlands Antilles – Guilder (ANG)","TWD":"Taiwan – Dollar (TWD)","NZD":"New Zealand – Dollar (NZD)","NIO":"Nicaragua – Cordoba (NIO)","NGN":"Nigeria – Naira (NGN)","KPW":"North Korea – Won (KPW)","NOK":"Norway – Krone (NOK)","OMR":"Oman – Rial (OMR)","PKR":"Pakistan – Rupee (PKR)","PAB":"Panama – Balboa (PAB)","PGK":"Papua New Guinea – Kina (PGK)","PYG":"Paraguay – Guarani (PYG)","PEN":"Peru – Sol (PEN)","PHP":"Philippines – Peso (PHP)","PLN":"Poland – Zloty (PLN)","QAR":"Qatar – Riyal (QAR)","RON":"Romania – Leu (RON)","RUB":"Russia – Ruble (RUB)","RWF":"Rwanda – Franc (RWF)","SHP":"Saint Helena – Pound (SHP)","WST":"Samoa – Tala (WST)","SAR":"Saudi Arabia – Riyal (SAR)","RSD":"Serbia – Dinar (RSD)","SCR":"Seychelles – Rupee (SCR)","SLL":"Sierra Leone – Leone (SLL)","SGD":"Singapore – Dollar (SGD)","SBD":"Solomon Islands – Dollar (SBD)","SOS":"Somalia – Shilling (SOS)","ZAR":"South Africa – Rand (ZAR)","KRW":"South Korea – Won (KRW)","SSP":"South Sudan – Pound (SSP)","LKR":"Sri Lanka – Rupee (LKR)","SDG":"Sudan – Pound (SDG)","SRD":"Suriname – Dollar (SRD)","SZL":"Eswatini – Lilangeni (SZL)","SEK":"Sweden – Krona (SEK)","SYP":"Syria – Pound (SYP)","TJS":"Tajikistan – Somoni (TJS)","TZS":"Tanzania – Shilling (TZS)","THB":"Thailand – Baht (THB)","TOP":"Tonga – Pa'anga (TOP)","TTD":"Trinidad & Tobago – Dollar (TTD)","TND":"Tunisia – Dinar (TND)","TRY":"Turkey – Lira (TRY)","TMT":"Turkmenistan – Manat (TMT)","UGX":"Uganda – Shilling (UGX)","UAH":"Ukraine – Hryvnia (UAH)","AED":"UAE – Dirham (AED)","UYU":"Uruguay – Peso (UYU)","UZS":"Uzbekistan – Som (UZS)","VUV":"Vanuatu – Vatu (VUV)","VEF":"Venezuela – Bolívar (VEF)","VND":"Vietnam – Dong (VND)","YER":"Yemen – Rial (YER)","ZMW":"Zambia – Kwacha (ZMW)","ZWL":"Zimbabwe – Dollar (ZWL)"
-};
+const form = document.getElementById('converterForm');
+const amountInput = document.getElementById('amount');
+const fromSelect = document.getElementById('fromCurrency');
+const toSelect = document.getElementById('toCurrency');
+const resultDiv = document.getElementById('result');
+const loadingEl = document.getElementById('loading');
+const lastUpdatedEl = document.getElementById('lastUpdated');
+const toggleDarkBtn = document.getElementById('toggleDark');
+const container = document.querySelector('.container');
 
-// Populate dropdowns
-const fromDropdown=document.getElementById("fromCurrency");
-const toDropdown=document.getElementById("toCurrency");
-for(let code in countryCurrencies){
-  let opt1=document.createElement("option");opt1.value=code;opt1.textContent=countryCurrencies[code];fromDropdown.appendChild(opt1);
-  let opt2=document.createElement("option");opt2.value=code;opt2.textContent=countryCurrencies[code];toDropdown.appendChild(opt2);
+let rates = {};
+let isDark = false;
+
+async function fetchRates() {
+  try {
+    loadingEl.textContent = "Fetching live exchange rates...";
+    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    if (!res.ok) throw new Error("Failed to fetch rates");
+    const data = await res.json();
+    rates = data.rates;
+    loadingEl.textContent = "Rates updated ✓";
+
+    const now = new Date();
+    lastUpdatedEl.textContent = "Last updated: " + now.toLocaleString();
+    setTimeout(() => loadingEl.textContent = "", 2500);
+    populateCurrencies(Object.keys(rates));
+  } catch (err) {
+    console.error(err);
+    loadingEl.textContent = "Failed to fetch live rates.";
+  }
 }
-fromDropdown.value="USD";toDropdown.value="INR";
 
-// Conversion
-async function convertCurrency(){
-  const amount=document.getElementById("amount").value;
-  const from=fromDropdown.value;
-  const to=toDropdown.value;
-  if(amount===""||isNaN(amount)){document.getElementById("result").textContent="Enter a valid amount";return;}
-  try{
-    const res=await fetch(`https://api.exchangerate.host/latest?base=${from}&symbols=${to}`);
-    const data=await res.json();
-    const rate=data.rates[to];
-    const converted=(amount*rate).toFixed(2);
-    document.getElementById("result").textContent=`${amount} ${from} = ${converted} ${to}`;
-  }catch(e){document.getElementById("result").textContent="Error fetching rates";}
+function populateCurrencies(currencyList) {
+  if (fromSelect.options.length === 0) {
+    currencyList.forEach(code => {
+      let opt1 = document.createElement("option");
+      opt1.value = code;
+      opt1.textContent = code;
+      fromSelect.appendChild(opt1);
+
+      let opt2 = document.createElement("option");
+      opt2.value = code;
+      opt2.textContent = code;
+      toSelect.appendChild(opt2);
+    });
+    fromSelect.value = "USD";
+    toSelect.value = "INR";
+  }
 }
 
-// Dark Mode Toggle
-function toggleDarkMode(){document.body.classList.toggle("dark");}
+function convert(amount, from, to) {
+  if (!rates[from] || !rates[to]) return null;
+  const inUSD = amount / rates[from];
+  return inUSD * rates[to];
+}
 
-// Base64 Icon manifest
-const base64Icon="iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABF0lEQVRYR+2VMQ6CMAxF3ykK0Qh6P5pOjB0HKHF4c70AhyH3AbIZMLiXnv2MTjX4/1rSInyV0nM8tApP33+MGwDhGkDG8wMD1DmP0tHJv6RkuJAmZTP7VhtniHeAMZ0aTPmuAHoESf8o6M+4Q2RjqIMoLxrN9ho2iVYBkZKMq/8/0VvSvwfZqN16RbmRDb7tE+0i/fuhvAqDWU9OxARwWjKk6sBDfFRa9sL3y7o0mHQJgGHuYh4pIf8P0I6Al+3sP3Tf16UvIKh9MxIuqWnhL6gAAAABJRU5ErkJggg==";
-const manifest={name:"Curenja",short_name:"Curenja",start_url:".",display:"standalone",background_color:"#1e1e1e",theme_color:"#1e1e1e",icons:[{src:"data:image/png;base64,"+base64Icon,sizes:"192x192",type:"image/png"},{src:"data:image/png;base64,"+base64Icon,sizes:"512x512",type:"image/png"}]};
-const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-document.querySelector('link[rel="manifest"]').setAttribute('href',URL.createObjectURL(blob));
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const amount = parseFloat(amountInput.value);
+  const from = fromSelect.value;
+  const to = toSelect.value;
 
-// Optional: service worker
-if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(console.error);}
+  if (isNaN(amount) || amount <= 0) {
+    resultDiv.textContent = "Please enter a valid amount.";
+    return;
+  }
+
+  const converted = convert(amount, from, to);
+  if (converted === null) {
+    resultDiv.textContent = "Conversion not available.";
+  } else {
+    resultDiv.innerHTML = `${amount.toFixed(2)} ${from} = <span>${converted.toFixed(2)} ${to}</span>`;
+    const span = resultDiv.querySelector("span");
+    span.style.animation = "none";
+    span.offsetHeight;
+    const pulseDuration = document.body.classList.contains('dark') ? 0.8 : 1.5;
+    span.style.animation = `popIn 0.6s ease, glowPulse ${pulseDuration}s ease-in-out infinite alternate`;
+
+    container.style.animation = "none";
+    container.offsetHeight;
+    container.style.animation = "bounce 0.5s ease";
+  }
+});
+
+toggleDarkBtn.addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  toggleDarkBtn.textContent = isDark ? "🌞" : "🌙";
+});
+
+fetchRates();
+setInterval(fetchRates, 600000);
 </script>
 </body>
 </html>
