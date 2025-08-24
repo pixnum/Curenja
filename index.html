@@ -22,8 +22,8 @@
     box-shadow: 9px 9px 16px #a3b1c6,
                 -9px -9px 16px #ffffff;
     padding: 40px;
-    max-width: 400px;
-    width: 100%;
+    max-width: 420px;
+    width: 92vw;
     text-align: center;
     transition: transform 0.3s ease;
   }
@@ -180,15 +180,6 @@ const loadingEl = document.getElementById('loading');
 const lastUpdatedEl = document.getElementById('lastUpdated');
 const toggleDarkBtn = document.getElementById('toggleDark');
 
-const currencyCountries = {
-  "USD": "United States",
-  "EUR": "European Union",
-  "INR": "India",
-  "JPY": "Japan",
-  "GBP": "United Kingdom",
-  // Add more currencies and their countries here
-};
-
 let rates = {};
 
 async function fetchRates() {
@@ -203,32 +194,101 @@ async function fetchRates() {
     const now = new Date();
     lastUpdatedEl.textContent = "Last updated: " + now.toLocaleString();
     setTimeout(() => loadingEl.textContent = "", 2500);
-    populateCurrencies(Object.keys(rates));
+    populateCurrencies();
   } catch (err) {
     console.error(err);
     loadingEl.textContent = "Failed to fetch live rates.";
   }
 }
 
-function populateCurrencies(currencyList) {
-  if (fromSelect.options.length === 0) {
-    currencyList.forEach(code => {
-      let country = currencyCountries[code] || "Unknown";
-      let opt1 = document.createElement("option");
-      opt1.value = code;
-      opt1.textContent = code;
-      opt1.title = country;
-      fromSelect.appendChild(opt1);
+function populateCurrencies() {
+  const countries = [
+    {c:"AFN", n:"Afghanistan"}, {c:"ALB", n:"Albania", c2:"ALL"},
+    {c:"DZD", n:"Algeria"}, {c:"EUR", n:"Andorra"}, {c:"AOA", n:"Angola"},
+    {c:"XCD", n:"Antigua and Barbuda"}, {c:"ARS", n:"Argentina"}, {c:"AMD", n:"Armenia"},
+    {c:"AUD", n:"Australia"}, {c:"EUR", n:"Austria"}, {c:"AZN", n:"Azerbaijan"},
+    {c:"BSD", n:"Bahamas"}, {c:"BHD", n:"Bahrain"}, {c:"BDT", n:"Bangladesh"},
+    {c:"BBD", n:"Barbados"}, {c:"BYN", n:"Belarus"}, {c:"EUR", n:"Belgium"},
+    {c:"BZD", n:"Belize"}, {c:"XOF", n:"Benin"}, {c:"BTN", n:"Bhutan"},
+    {c:"BOB", n:"Bolivia"}, {c:"BAM", n:"Bosnia and Herzegovina"}, {c:"BWP", n:"Botswana"},
+    {c:"BRL", n:"Brazil"}, {c:"BND", n:"Brunei"}, {c:"BGN", n:"Bulgaria"},
+    {c:"XOF", n:"Burkina Faso"}, {c:"BIF", n:"Burundi"}, {c:"CVE", n:"Cabo Verde"},
+    {c:"KHR", n:"Cambodia"}, {c:"XAF", n:"Cameroon"}, {c:"CAD", n:"Canada"},
+    {c:"XAF", n:"Central African Republic"}, {c:"XAF", n:"Chad"}, {c:"CLP", n:"Chile"},
+    {c:"CNY", n:"China"}, {c:"COP", n:"Colombia"}, {c:"KMF", n:"Comoros"},
+    {c:"XAF", n:"Congo (Republic)"}, {c:"CRC", n:"Costa Rica"}, {c:"XOF", n:"Cote d'Ivoire"},
+    {c:"EUR", n:"Croatia"}, {c:"CUP", n:"Cuba"}, {c:"EUR", n:"Cyprus"},
+    {c:"CZK", n:"Czechia"}, {c:"CDF", n:"DR Congo"}, {c:"DKK", n:"Denmark"},
+    {c:"DJF", n:"Djibouti"}, {c:"XCD", n:"Dominica"}, {c:"DOP", n:"Dominican Republic"},
+    {c:"USD", n:"Ecuador"}, {c:"EGP", n:"Egypt"}, {c:"USD", n:"El Salvador"},
+    {c:"XAF", n:"Equatorial Guinea"}, {c:"ERN", n:"Eritrea"}, {c:"EUR", n:"Estonia"},
+    {c:"SZL", n:"Eswatini"}, {c:"ETB", n:"Ethiopia"}, {c:"FJD", n:"Fiji"},
+    {c:"EUR", n:"Finland"}, {c:"EUR", n:"France"}, {c:"XAF", n:"Gabon"},
+    {c:"GMD", n:"Gambia"}, {c:"GEL", n:"Georgia"}, {c:"EUR", n:"Germany"},
+    {c:"GHS", n:"Ghana"}, {c:"EUR", n:"Greece"}, {c:"XCD", n:"Grenada"},
+    {c:"GTQ", n:"Guatemala"}, {c:"GNF", n:"Guinea"}, {c:"XOF", n:"Guinea-Bissau"},
+    {c:"GYD", n:"Guyana"}, {c:"HTG", n:"Haiti"}, {c:"HNL", n:"Honduras"},
+    {c:"HUF", n:"Hungary"}, {c:"ISK", n:"Iceland"}, {c:"INR", n:"India"},
+    {c:"IDR", n:"Indonesia"}, {c:"IRR", n:"Iran"}, {c:"IQD", n:"Iraq"},
+    {c:"EUR", n:"Ireland"}, {c:"ILS", n:"Israel"}, {c:"EUR", n:"Italy"},
+    {c:"JMD", n:"Jamaica"}, {c:"JPY", n:"Japan"}, {c:"JOD", n:"Jordan"},
+    {c:"KZT", n:"Kazakhstan"}, {c:"KES", n:"Kenya"}, {c:"AUD", n:"Kiribati"},
+    {c:"KPW", n:"Korea, North"}, {c:"KRW", n:"Korea, South"}, {c:"KWD", n:"Kuwait"},
+    {c:"KGS", n:"Kyrgyzstan"}, {c:"LAK", n:"Laos"}, {c:"EUR", n:"Latvia"},
+    {c:"LBP", n:"Lebanon"}, {c:"LSL", n:"Lesotho"}, {c:"LRD", n:"Liberia"},
+    {c:"LYD", n:"Libya"}, {c:"CHF", n:"Liechtenstein"}, {c:"EUR", n:"Lithuania"},
+    {c:"EUR", n:"Luxembourg"}, {c:"MGA", n:"Madagascar"}, {c:"MWK", n:"Malawi"},
+    {c:"MYR", n:"Malaysia"}, {c:"MVR", n:"Maldives"}, {c:"XOF", n:"Mali"},
+    {c:"EUR", n:"Malta"}, {c:"USD", n:"Marshall Islands"}, {c:"MRU", n:"Mauritania"},
+    {c:"MUR", n:"Mauritius"}, {c:"MXN", n:"Mexico"}, {c:"USD", n:"Micronesia"},
+    {c:"MDL", n:"Moldova"}, {c:"EUR", n:"Monaco"}, {c:"MNT", n:"Mongolia"},
+    {c:"EUR", n:"Montenegro"}, {c:"MAD", n:"Morocco"}, {c:"MZN", n:"Mozambique"},
+    {c:"MMK", n:"Myanmar"}, {c:"NAD", n:"Namibia"}, {c:"AUD", n:"Nauru"},
+    {c:"NPR", n:"Nepal"}, {c:"EUR", n:"Netherlands"}, {c:"NZD", n:"New Zealand"},
+    {c:"NIO", n:"Nicaragua"}, {c:"XOF", n:"Niger"}, {c:"NGN", n:"Nigeria"},
+    {c:"MKD", n:"North Macedonia"}, {c:"NOK", n:"Norway"}, {c:"OMR", n:"Oman"},
+    {c:"PKR", n:"Pakistan"}, {c:"USD", n:"Palau"}, {c:"PAB", n:"Panama"},
+    {c:"PGK", n:"Papua New Guinea"}, {c:"PYG", n:"Paraguay"}, {c:"PEN", n:"Peru"},
+    {c:"PHP", n:"Philippines"}, {c:"PLN", n:"Poland"}, {c:"EUR", n:"Portugal"},
+    {c:"QAR", n:"Qatar"}, {c:"RON", n:"Romania"}, {c:"RUB", n:"Russia"},
+    {c:"RWF", n:"Rwanda"}, {c:"XCD", n:"Saint Kitts and Nevis"}, {c:"XCD", n:"Saint Lucia"},
+    {c:"XCD", n:"Saint Vincent and the Grenadines"}, {c:"WST", n:"Samoa"}, {c:"EUR", n:"San Marino"},
+    {c:"STN", n:"Sao Tome and Principe"}, {c:"SAR", n:"Saudi Arabia"}, {c:"XOF", n:"Senegal"},
+    {c:"RSD", n:"Serbia"}, {c:"SCR", n:"Seychelles"}, {c:"SLL", n:"Sierra Leone"},
+    {c:"SGD", n:"Singapore"}, {c:"EUR", n:"Slovakia"}, {c:"EUR", n:"Slovenia"},
+    {c:"SBD", n:"Solomon Islands"}, {c:"SOS", n:"Somalia"}, {c:"ZAR", n:"South Africa"},
+    {c:"SSP", n:"South Sudan"}, {c:"EUR", n:"Spain"}, {c:"LKR", n:"Sri Lanka"},
+    {c:"SDG", n:"Sudan"}, {c:"SRD", n:"Suriname"}, {c:"SEK", n:"Sweden"},
+    {c:"CHF", n:"Switzerland"}, {c:"SYP", n:"Syria"}, {c:"TJS", n:"Tajikistan"},
+    {c:"TZS", n:"Tanzania"}, {c:"THB", n:"Thailand"}, {c:"USD", n:"Timor-Leste"},
+    {c:"XOF", n:"Togo"}, {c:"TOP", n:"Tonga"}, {c:"TTD", n:"Trinidad and Tobago"},
+    {c:"TND", n:"Tunisia"}, {c:"TRY", n:"Turkey"}, {c:"TMT", n:"Turkmenistan"},
+    {c:"AUD", n:"Tuvalu"}, {c:"UGX", n:"Uganda"}, {c:"UAH", n:"Ukraine"},
+    {c:"AED", n:"United Arab Emirates"}, {c:"GBP", n:"United Kingdom"}, {c:"USD", n:"United States"},
+    {c:"UYU", n:"Uruguay"}, {c:"UZS", n:"Uzbekistan"}, {c:"VUV", n:"Vanuatu"},
+    {c:"EUR", n:"Vatican City"}, {c:"VES", n:"Venezuela"}, {c:"VND", n:"Vietnam"},
+    {c:"YER", n:"Yemen"}, {c:"ZMW", n:"Zambia"}, {c:"ZWL", n:"Zimbabwe"}
+  ];
 
-      let opt2 = document.createElement("option");
-      opt2.value = code;
-      opt2.textContent = code;
-      opt2.title = country;
-      toSelect.appendChild(opt2);
-    });
-    fromSelect.value = "USD";
-    toSelect.value = "INR";
-  }
+  // Clear any previous items before populating (avoid duplicates on refresh)
+  fromSelect.innerHTML = '';
+  toSelect.innerHTML = '';
+
+  countries.forEach(({c, n}) => {
+    const supported = !!rates[c];
+    const label = `${n} (${c})${supported ? '' : ' – unavailable'}`;
+
+    const o1 = document.createElement('option');
+    o1.value = c; o1.textContent = label; o1.disabled = !supported;
+    const o2 = o1.cloneNode(true);
+
+    fromSelect.appendChild(o1);
+    toSelect.appendChild(o2);
+  });
+
+  // Set sensible defaults if enabled
+  if ([...fromSelect.options].some(o => o.value === 'USD' && !o.disabled)) fromSelect.value = 'USD';
+  if ([...toSelect.options].some(o => o.value === 'INR' && !o.disabled)) toSelect.value = 'INR';
 }
 
 function convert(amount, from, to) {
@@ -250,14 +310,22 @@ form.addEventListener('submit', e => {
 
   const converted = convert(amount, from, to);
   if (converted === null) {
-    resultDiv.textContent = "Conversion not available.";
+    resultDiv.textContent = "Conversion not available for selected currencies.";
   } else {
     resultDiv.innerHTML = `${amount.toFixed(2)} ${from} = <span>${converted.toFixed(2)} ${to}</span>`;
   }
 });
 
-toggleDarkBtn.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
+// Dark Mode Toggle with instant flip
+let isDark = localStorage.getItem("darkMode") === "true";
+if (isDark) document.body.classList.add("dark");
+toggleDarkBtn.textContent = isDark ? "☀️" : "🌙";
+
+toggleDarkBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  isDark = document.body.classList.contains("dark");
+  localStorage.setItem("darkMode", isDark);
+  toggleDarkBtn.textContent = isDark ? "☀️" : "🌙";
 });
 
 fetchRates();
